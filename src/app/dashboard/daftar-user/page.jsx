@@ -27,7 +27,7 @@ export default function DaftarUserPage() {
 
   // SWR hooks for real-time data
   const { data: usersData, error: usersError, mutate: mutateUsers } = useSWR(
-    '/api/users?limit=1000',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`,
     fetcher,
     { 
       refreshInterval: 2000, // Refresh setiap 2 detik
@@ -37,7 +37,7 @@ export default function DaftarUserPage() {
   );
 
   const { data: prizesData, error: prizesError, mutate: mutatePrizes } = useSWR(
-    '/api/prizes',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`,
     fetcher,
     { 
       refreshInterval: 3000,
@@ -47,7 +47,7 @@ export default function DaftarUserPage() {
   );
 
   const { data: spinResultsData, error: spinResultsError, mutate: mutateSpinResults } = useSWR(
-    '/api/spin-result',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`,
     fetcher,
     { 
       refreshInterval: 2000,
@@ -57,7 +57,7 @@ export default function DaftarUserPage() {
   );
 
   const { data: assignedPrizesData, error: assignedPrizesError, mutate: mutateAssignedPrizes } = useSWR(
-    '/api/assigned-prizes',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prizes`,
     fetcher,
     { 
       refreshInterval: 2000,
@@ -140,7 +140,7 @@ export default function DaftarUserPage() {
     }
 
     try {
-      const response = await fetch('/api/users/bulk-delete', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/bulk-delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
@@ -188,7 +188,7 @@ export default function DaftarUserPage() {
     setAssigning(true);
 
     try {
-      const response = await fetch(`/api/assigned-prize/${editingUser._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prize/${editingUser._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

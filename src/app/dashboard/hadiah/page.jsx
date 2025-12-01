@@ -26,7 +26,7 @@ export default function HadiahPage() {
 
   // SWR hook for real-time data
   const { data: prizesData, error: prizesError, mutate: mutatePrizes } = useSWR(
-    '/api/prizes',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`,
     fetcher,
     { 
       refreshInterval: 3000,
@@ -65,7 +65,7 @@ export default function HadiahPage() {
     setSubmitting(true);
 
     try {
-      const response = await fetch('/api/prizes', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -137,7 +137,7 @@ export default function HadiahPage() {
     setSubmitting(true);
 
     try {
-      const response = await fetch(`/api/prizes/${editingPrize._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes/${editingPrize._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -214,7 +214,7 @@ export default function HadiahPage() {
     setDeleting(true);
 
     try {
-      const response = await fetch('/api/prizes/bulk-delete', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes/bulk-delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

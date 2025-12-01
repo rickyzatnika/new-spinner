@@ -30,7 +30,7 @@ export default function DashboardPage() {
   )
 
   const { data: users, error: usersError, mutate: mutateUsers } = useSWR(
-    '/api/users?limit=1000', // Get all users for dashboard
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`, // Get all users for dashboard
     fetcher,
     {
       refreshInterval: refreshInterval,

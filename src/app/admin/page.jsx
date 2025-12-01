@@ -14,9 +14,9 @@ export default function AdminDashboard() {
   const [assigning, setAssigning] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
 
-  const { data: users, error: usersError, mutate: mutateUsers } = useSWR('/api/users', fetcher)
-  const { data: prizes, error: prizesError, mutate: mutatePrizes } = useSWR('/api/prizes', fetcher)
-  const { data: spinResults, error: resultsError, mutate: mutateResults } = useSWR('/api/spin-result', fetcher)
+  const { data: users, error: usersError, mutate: mutateUsers } = useSWR(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users`, fetcher)
+  const { data: prizes, error: prizesError, mutate: mutatePrizes } = useSWR(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`, fetcher)
+  const { data: spinResults, error: resultsError, mutate: mutateResults } = useSWR(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`, fetcher)
 
   const handleAssignPrize = async () => {
     if (!editingUser || !selectedPrize) {
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
     setAssigning(true)
 
     try {
-      const response = await fetch(`/api/assigned-prize/${editingUser._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prize/${editingUser._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

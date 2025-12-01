@@ -18,7 +18,7 @@ export default function WheelPage() {
 
   // SWR hooks for real-time data
   const { data: spinResults, error: resultsError, mutate: mutateResults } = useSWR(
-    '/api/spin-result',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`,
     fetcher,
     { 
       refreshInterval: 3000, // Refresh every 3 seconds
@@ -28,7 +28,7 @@ export default function WheelPage() {
   )
 
   const { data: users, error: usersError, mutate: mutateUsers } = useSWR(
-    '/api/users?limit=1000',
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`,
     fetcher,
     { 
       refreshInterval: 5000, // Refresh every 5 seconds
@@ -61,35 +61,20 @@ export default function WheelPage() {
     }
   }, [spinResult])
 
-  // Handle panggil user dari antrian
-  const handleCallUser = (user) => {
-    // Auto-isi kode user ke form verifikasi
-    setUserCode(user.code)
-    // Set user data untuk verifikasi
-    setUserData({
-      ...user,
-      // Tambah flag untuk menandai user dipanggil dari antrian
-      calledFromQueue: true
-    })
-    
-    // Scroll ke form verifikasi
-    setTimeout(() => {
-      document.getElementById('kodeInput')?.focus()
-    }, 100)
-  }
+
 
   const handleCodeSubmit = async (e) => {
     e.preventDefault()
     
     try {
-      const response = await fetch(`/api/user/${userCode}`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/${userCode}`)
       const data = await response.json()
 
       if (response.ok) {
         setUserData(data)
         
         // Check if user has assigned prize
-        const prizeResponse = await fetch(`/api/assigned-prize/${data._id}`)
+        const prizeResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prize/${data._id}`)
         const prizeData = await prizeResponse.json()
         
         if (prizeResponse.ok && prizeData.prize) {
@@ -113,10 +98,7 @@ export default function WheelPage() {
     
     // Save spin result to database
     try {
-      console.log('=== SAVING SPIN RESULT ===')
-      console.log('Prize received:', prize)
-      console.log('Assigned Prize:', assignedPrize)
-      console.log('User Data:', userData)
+      
       
       // Prize now comes with _id from database
       const prizeId = prize._id || prize.id
@@ -127,7 +109,7 @@ export default function WheelPage() {
         return
       }
       
-      const response = await fetch('/api/spin', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -141,7 +123,7 @@ export default function WheelPage() {
       })
 
       const result = await response.json()
-      console.log('API Response:', result)
+    
 
       if (!response.ok) {
         console.error('Save failed:', result)

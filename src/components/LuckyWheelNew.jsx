@@ -14,7 +14,7 @@ const LuckyWheelNew = ({ onSpinComplete, assignedPrize = null, isSpinning = fals
   const [isSpinningLocal, setIsSpinningLocal] = useState(false)
 
   // Fetch prizes from API
-  const { data: prizesData, error: prizesError } = useSWR('/api/prizes', fetcher)
+  const { data: prizesData, error: prizesError } = useSWR(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`, fetcher)
   
   // Transform prizes data to include both _id and id for compatibility
   const prizes = prizesData?.prizes 
