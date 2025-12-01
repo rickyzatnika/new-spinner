@@ -1,10 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 
 export default function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const pathname = usePathname()
+
+  const isDashboard = pathname === '/dashboard'
+  const isDaftarUser = pathname === '/dashboard/daftar-user'
+  const isHadiah = pathname === '/dashboard/hadiah'
+
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -17,25 +25,25 @@ export default function Navigation() {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
                 href="/dashboard"
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200"
+                className={`text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ${isDashboard ? 'border-purple-500 border-b-2 text-purple-700' : 'border-transparent'}`}
               >
                 Dashboard
               </Link>
               
               <Link
                 href="/dashboard/daftar-user"
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200"
+                className={`text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ${isDaftarUser ? 'border-purple-500 text-purple-700 border-b border-puprle-300' : 'border-transparent'}`}
               >
                 Daftar User
               </Link>
               <Link
                 href="/dashboard/hadiah"
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200"
+                className={`text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200 ${isHadiah ? 'border-purple-500 text-purple-700' : 'border-transparent'}`}
               >
                 Daftar Hadiah
               </Link>
               <Link
-                href="/wheel"
+                href="/f/wheel"
                 target="_blank"
                 className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-200"
               >

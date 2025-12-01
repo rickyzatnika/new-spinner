@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import useSWR from 'swr'
-import LuckyWheelNew from '../../components/LuckyWheelNew'
+
 import Image from 'next/image'
+import LuckyWheelNew from '@/components/LuckyWheelNew'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 

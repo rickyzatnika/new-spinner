@@ -175,7 +175,7 @@ export default function DashboardPage() {
             <h3 className="text-sm font-medium text-gray-600 mb-1">Spin Terakhir</h3>
             <p className="text-lg font-bold text-gray-800">
               {spinResultsArray.length > 0 && spinResultsArray[0].spinTime 
-                ? formatTime(spinResultsArray[0].spinTime).split(',')[1] 
+                ? 'Pukul ' + formatTime(spinResultsArray[0].spinTime).split(',')[1] + ' WIB'
                 : 'Belum ada'}
             </p>
             <p className="text-xs text-gray-500">
