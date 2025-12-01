@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import useSWR from 'swr';
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -60,7 +62,8 @@ export default function RegistrasiPage() {
         // Trigger real-time update
         mutateUsers();
       } else {
-        alert(data.message || 'Registrasi gagal');
+      
+        toast.error(data.message || 'Registrasi gagal');
       }
     } catch (error) {
       alert('Terjadi kesalahan. Silakan coba lagi.');
@@ -214,25 +217,19 @@ export default function RegistrasiPage() {
         </form>
 
         <div className="mt-6 text-center space-y-2">
-          <p className="text-sm text-gray-600">
-            Sudah punya kode?{' '}
-            <button 
-              onClick={() => window.location.href = '/wheel'}
-              className="text-purple-600 hover:text-purple-700 font-medium"
+         
+          <p className="text-sm antialiased">
+            <Link
+              href="https://aplusmultikreasi.com"
+              target="_blank"
+              className="text-purple-900/80 font-medium"
             >
-              Main Lucky Wheel
-            </button>
-          </p>
-          <p className="text-sm text-gray-600">
-            <button 
-              onClick={() => window.location.href = '/daftar-user'}
-              className="text-purple-600 hover:text-purple-700 font-medium"
-            >
-              Dashboard Admin
-            </button>
+              Support By : <span className=" text-gray-600 hover:text-gray-800 hover:underline ">aplusmultikreasi.com</span>
+            </Link>
           </p>
         </div>
       </div>
+      <ToastContainer position="top-center" />
     </div>
   );
 }
