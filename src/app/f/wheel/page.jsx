@@ -201,7 +201,7 @@ export default function WheelPage() {
               </h2>
 
               {userData && userData.hasSpun && (
-                <p className="text-red-500 font-semibold mt-2"> kode ini sudah pernah digunakan</p>
+                <p className="text-red-500 font-semibold mt-2">Kode tidak valid atau sudah digunakan</p>
               )}
             </div>
 
