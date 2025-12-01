@@ -229,41 +229,87 @@ export default function DaftarUserPage() {
   };
 
   // Get user's assigned prize
+  // const getUserAssignedPrize = (userId) => {
+  //   // First check if user has assigned prize (admin assigned)
+  //   const assignedPrize = assignedPrizes[userId];
+  //   if (assignedPrize) {
+  //     return assignedPrize;
+  //   }
+    
+  //   // Then check if user has spin result with assigned prize
+  //   const spinResult = spinResults.find(result => result.userId === userId && result.isAssigned);
+  //   if (spinResult) {
+  //     return {
+  //       userId: userId,
+  //       prizeId: spinResult.prizeId,
+  //       prize: prizes.find(p => p._id === spinResult.prizeId),
+  //       prizeName: spinResult.prizeName,
+  //       isAssigned: spinResult.isAssigned
+  //     };
+  //   }
+    
+  //   // CHECK FOR RANDOM SPIN RESULTS - THIS IS THE FIX!
+  //   const randomSpinResult = spinResults.find(result => result.userId === userId && !result.isAssigned);
+  //   if (randomSpinResult) {
+  //     return {
+  //       userId: userId,
+  //       prizeId: randomSpinResult.prizeId,
+  //       prize: prizes.find(p => p._id === randomSpinResult.prizeId) || { 
+  //         _id: randomSpinResult.prizeId, 
+  //         name: randomSpinResult.prizeName,
+  //         color: '#999' 
+  //       },
+  //       prizeName: randomSpinResult.prizeName,
+  //       isAssigned: false
+  //     };
+  //   }
+    
+  //   return null;
+  // };
+
   const getUserAssignedPrize = (userId) => {
-    // First check if user has assigned prize (admin assigned)
+    const safePrize = (prizeId, prizeName) => ({
+      _id: prizeId || 'unknown',
+      name: prizeName || 'Hadiah Tidak Ditemukan',
+      color: '#999' // fallback supaya tidak error
+    });
+  
+    // admin assigned prize
     const assignedPrize = assignedPrizes[userId];
     if (assignedPrize) {
-      return assignedPrize;
-    }
-    
-    // Then check if user has spin result with assigned prize
-    const spinResult = spinResults.find(result => result.userId === userId && result.isAssigned);
-    if (spinResult) {
+      const prize = prizes.find(p => p._id === assignedPrize.prizeId);
       return {
-        userId: userId,
-        prizeId: spinResult.prizeId,
-        prize: prizes.find(p => p._id === spinResult.prizeId),
-        prizeName: spinResult.prizeName,
-        isAssigned: spinResult.isAssigned
+        ...assignedPrize,
+        prize: prize || safePrize(assignedPrize.prizeId, assignedPrize.prizeName)
       };
     }
-    
-    // CHECK FOR RANDOM SPIN RESULTS - THIS IS THE FIX!
-    const randomSpinResult = spinResults.find(result => result.userId === userId && !result.isAssigned);
-    if (randomSpinResult) {
+  
+    // spin result assigned
+    const spinAssigned = spinResults.find(r => r.userId === userId && r.isAssigned);
+    if (spinAssigned) {
+      const prize = prizes.find(p => p._id === spinAssigned.prizeId);
       return {
-        userId: userId,
-        prizeId: randomSpinResult.prizeId,
-        prize: prizes.find(p => p._id === randomSpinResult.prizeId) || { 
-          _id: randomSpinResult.prizeId, 
-          name: randomSpinResult.prizeName,
-          color: '#999' 
-        },
-        prizeName: randomSpinResult.prizeName,
+        userId,
+        prizeId: spinAssigned.prizeId,
+        prize: prize || safePrize(spinAssigned.prizeId, spinAssigned.prizeName),
+        prizeName: spinAssigned.prizeName,
+        isAssigned: true
+      };
+    }
+  
+    // random spin result (NOT assigned)
+    const randomSpin = spinResults.find(r => r.userId === userId && !r.isAssigned);
+    if (randomSpin) {
+      const prize = prizes.find(p => p._id === randomSpin.prizeId);
+      return {
+        userId,
+        prizeId: randomSpin.prizeId,
+        prize: prize || safePrize(randomSpin.prizeId, randomSpin.prizeName),
+        prizeName: randomSpin.prizeName,
         isAssigned: false
       };
     }
-    
+  
     return null;
   };
 

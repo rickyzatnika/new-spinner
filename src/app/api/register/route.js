@@ -3,29 +3,29 @@ import { User } from '@/lib/models';
 import connectDB from '@/lib/mongodb';
 
 // Function to get client IP address
-function getClientIP(request) {
-  // Try to get IP from various headers (for proxies, load balancers, etc.)
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIP = request.headers.get('x-real-ip');
-  const cfConnectingIP = request.headers.get('cf-connecting-ip'); // Cloudflare
+// function getClientIP(request) {
+//   // Try to get IP from various headers (for proxies, load balancers, etc.)
+//   const forwarded = request.headers.get('x-forwarded-for');
+//   const realIP = request.headers.get('x-real-ip');
+//   const cfConnectingIP = request.headers.get('cf-connecting-ip'); // Cloudflare
   
-  if (forwarded) {
-    // x-forwarded-for can contain multiple IPs, take the first one
-    return forwarded.split(',')[0].trim();
-  }
+//   if (forwarded) {
+//     // x-forwarded-for can contain multiple IPs, take the first one
+//     return forwarded.split(',')[0].trim();
+//   }
   
-  if (realIP) {
-    return realIP.trim();
-  }
+//   if (realIP) {
+//     return realIP.trim();
+//   }
   
-  if (cfConnectingIP) {
-    return cfConnectingIP.trim();
-  }
+//   if (cfConnectingIP) {
+//     return cfConnectingIP.trim();
+//   }
   
-  // Fallback: try to get from request (may not work in all environments)
-  // In Next.js, we can't directly access request.ip, so we rely on headers
-  return 'unknown';
-}
+//   // Fallback: try to get from request (may not work in all environments)
+//   // In Next.js, we can't directly access request.ip, so we rely on headers
+//   return 'unknown';
+// }
 
 export async function POST(request) {
   try {
@@ -34,38 +34,36 @@ export async function POST(request) {
     const { name, email, phone } = await request.json()
 
     // Get client IP address
-    const clientIP = getClientIP(request);
+    // const clientIP = getClientIP(request);
     
-    console.log('Registration request:', { name, email, phone, ipAddress: clientIP });
+    // console.log('Registration request:', { name, email, phone, ipAddress: clientIP });
 
-    // Check if user already exists by email
-    const existingUser = await User.findOne({ 
-      $or: [{ email }]
-    });
+    // const existingUser = await User.findOne({ 
+    //   $or: [{ email }]
+    // });
 
-    console.log('Existing user:', existingUser);
+    // console.log('Existing user:', existingUser);
 
-    if (existingUser) {
-      return Response.json(
-        { message: 'User dengan email ini sudah terdaftar' },
-        { status: 400 }
-      )
-    }
+    // if (existingUser) {
+    //   return Response.json(
+    //     { message: 'User dengan email ini sudah terdaftar' },
+    //     { status: 400 }
+    //   )
+    // }
 
-    // Check if IP address has already registered (prevent duplicate registration from same IP)
-    if (clientIP && clientIP !== 'unknown') {
-      const existingIPUser = await User.findOne({ 
-        ipAddress: clientIP 
-      });
+    // if (clientIP && clientIP !== 'unknown') {
+    //   const existingIPUser = await User.findOne({ 
+    //     ipAddress: clientIP 
+    //   });
 
-      if (existingIPUser) {
-        console.log('Duplicate registration attempt from IP:', clientIP);
-        return Response.json(
-          { message: 'Anda sudah terdaftar sebelumnya. Satu IP address hanya dapat mendaftar sekali.' },
-          { status: 400 }
-        )
-      }
-    }
+    //   if (existingIPUser) {
+    //     console.log('Duplicate registration attempt from IP:', clientIP);
+    //     return Response.json(
+    //       { message: 'Anda sudah terdaftar sebelumnya. Satu IP address hanya dapat mendaftar sekali.' },
+    //       { status: 400 }
+    //     )
+    //   }
+    // }
 
     // Generate unique 4 digit code
     let code;
@@ -83,7 +81,7 @@ export async function POST(request) {
       email,
       phone,
       code,
-      ipAddress: clientIP !== 'unknown' ? clientIP : null,
+      // ipAddress: clientIP !== 'unknown' ? clientIP : null,
       hasSpun: false,
       registeredAt: new Date()
     });
@@ -91,6 +89,8 @@ export async function POST(request) {
 
 
     console.log('New user created:', newReg);
+
+    
 
     return Response.json({
       success: true,
