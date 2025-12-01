@@ -228,45 +228,6 @@ export default function DaftarUserPage() {
     return user?.hasSpun || hasSpinResult || false;
   };
 
-  // Get user's assigned prize
-  // const getUserAssignedPrize = (userId) => {
-  //   // First check if user has assigned prize (admin assigned)
-  //   const assignedPrize = assignedPrizes[userId];
-  //   if (assignedPrize) {
-  //     return assignedPrize;
-  //   }
-    
-  //   // Then check if user has spin result with assigned prize
-  //   const spinResult = spinResults.find(result => result.userId === userId && result.isAssigned);
-  //   if (spinResult) {
-  //     return {
-  //       userId: userId,
-  //       prizeId: spinResult.prizeId,
-  //       prize: prizes.find(p => p._id === spinResult.prizeId),
-  //       prizeName: spinResult.prizeName,
-  //       isAssigned: spinResult.isAssigned
-  //     };
-  //   }
-    
-  //   // CHECK FOR RANDOM SPIN RESULTS - THIS IS THE FIX!
-  //   const randomSpinResult = spinResults.find(result => result.userId === userId && !result.isAssigned);
-  //   if (randomSpinResult) {
-  //     return {
-  //       userId: userId,
-  //       prizeId: randomSpinResult.prizeId,
-  //       prize: prizes.find(p => p._id === randomSpinResult.prizeId) || { 
-  //         _id: randomSpinResult.prizeId, 
-  //         name: randomSpinResult.prizeName,
-  //         color: '#999' 
-  //       },
-  //       prizeName: randomSpinResult.prizeName,
-  //       isAssigned: false
-  //     };
-  //   }
-    
-  //   return null;
-  // };
-
   const getUserAssignedPrize = (userId) => {
     const safePrize = (prizeId, prizeName) => ({
       _id: prizeId || 'unknown',
@@ -812,16 +773,24 @@ export default function DaftarUserPage() {
                 <select
                   value={selectedPrize}
                   onChange={(e) => setSelectedPrize(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border-none focus:outline-none  rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 >
                   <option value="">Pilih hadiah...</option>
                   {Array.isArray(prizes) && prizes.length > 0 ? (
                     prizes
                       .filter(prize => prize.isActive !== false)
                       .map((prize) => (
-                        <option key={prize._id} value={prize._id}>
-                          {prize.name}
-                        </option>
+                        <option
+                        key={prize._id}
+                        value={prize._id}
+                        style={{
+                          backgroundColor: prize.color,   // warna dari database
+                          color: "white",
+                                       // biar teks tetap terlihat
+                        }}
+                      >
+                        {prize.name}
+                      </option>
                       ))
                   ) : (
                     <option value="" disabled>Loading prizes...</option>

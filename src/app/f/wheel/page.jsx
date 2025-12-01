@@ -21,7 +21,7 @@ export default function WheelPage() {
   const { data: spinResults, error: resultsError, mutate: mutateResults } = useSWR(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`,
     fetcher,
-    { 
+    {
       refreshInterval: 3000, // Refresh every 3 seconds
       revalidateOnFocus: true,
       revalidateOnReconnect: true
@@ -31,7 +31,7 @@ export default function WheelPage() {
   const { data: users, error: usersError, mutate: mutateUsers } = useSWR(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`,
     fetcher,
-    { 
+    {
       refreshInterval: 5000, // Refresh every 5 seconds
       revalidateOnFocus: true,
       revalidateOnReconnect: true
@@ -42,7 +42,7 @@ export default function WheelPage() {
   useEffect(() => {
     finishAudioRef.current = new Audio('/finish.mp3')
     finishAudioRef.current.volume = 0.5 // Set volume to 50%
-    
+
     return () => {
       if (finishAudioRef.current) {
         finishAudioRef.current.pause()
@@ -66,22 +66,22 @@ export default function WheelPage() {
 
   const handleCodeSubmit = async (e) => {
     e.preventDefault()
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/${userCode}`)
       const data = await response.json()
 
       if (response.ok) {
         setUserData(data)
-        
+
         // Check if user has assigned prize
         const prizeResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prize/${data._id}`)
         const prizeData = await prizeResponse.json()
-        
+
         if (prizeResponse.ok && prizeData.prize) {
           setAssignedPrize(prizeData.prize)
         }
-        
+
         // Refresh data to get latest status
         mutateResults()
         mutateUsers()
@@ -96,20 +96,20 @@ export default function WheelPage() {
   const handleSpinComplete = async (prize) => {
     setSpinResult(prize)
     setIsSpinning(false)
-    
+
     // Save spin result to database
     try {
-      
-      
+
+
       // Prize now comes with _id from database
       const prizeId = prize._id || prize.id
-      
+
       if (!prizeId) {
         console.error('Prize ID not found:', prize)
         alert('Terjadi kesalahan: Prize ID tidak ditemukan')
         return
       }
-      
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin`, {
         method: 'POST',
         headers: {
@@ -124,7 +124,7 @@ export default function WheelPage() {
       })
 
       const result = await response.json()
-    
+
 
       if (!response.ok) {
         console.error('Save failed:', result)
@@ -146,7 +146,7 @@ export default function WheelPage() {
       alert('Anda sudah pernah memutar Lucky Wheel!')
       return
     }
-    
+
     setIsSpinning(true)
   }
 
@@ -168,7 +168,7 @@ export default function WheelPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Selamat!</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Selamat! {userData ? `${userData.name}` : ''}</h1>
             <p className="text-xl text-gray-600 mb-4">Anda mendapatkan:</p>
             <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-xl p-6 mb-6">
               <div className="text-2xl font-bold">{spinResult.name}</div>
@@ -177,7 +177,7 @@ export default function WheelPage() {
               onClick={resetForm}
               className="bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-gray-700 transition duration-200"
             >
-              Back to Spin
+              Kembali
             </button>
           </div>
         </div>
@@ -188,22 +188,20 @@ export default function WheelPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-center items-center w-full mb-8">
+        <div className="flex justify-center items-center w-full mb-3">
           <Image src="/goodluck.png" alt="Logo" width={400} height={400} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className='grid grid-cols-1 sm:grid-cols-12 gap-2 items-start'>
           {/* Lucky Wheel Section */}
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
+          <div className={`bg-white rounded-2xl shadow-2xl p-4 antialiased ${userData && userData.hasSpun === false ? 'col-span-12' : 'col-span-12 md:col-span-8'}`}>
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {userData ? `Lucky Wheel - ${userData.name}` : 'Lucky Wheel'}
+              <h2 className="text-xl font-semibold text-gray-500 ">
+                {userData ? `${userData.name}` : ''}
               </h2>
-              {userData && (
-                <p className="text-gray-600">Kode: {userData.code}</p>
-              )}
+
               {userData && userData.hasSpun && (
-                <p className="text-red-600 font-semibold mt-2">Anda sudah pernah memutar!</p>
+                <p className="text-red-500 font-semibold mt-2"> kode ini sudah pernah digunakan</p>
               )}
             </div>
 
@@ -217,42 +215,41 @@ export default function WheelPage() {
               <button
                 onClick={startSpin}
                 disabled={!userData || isSpinning || userData?.hasSpun}
-                className={`font-bold py-3 px-8 rounded-lg  ${
-                  !userData || isSpinning || userData?.hasSpun
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-green-500 to-green-600 cursor-pointer text-white hover:from-green-600 transition duration-200 transform hover:scale-105 hover:to-green-700'
-                }`}
+                className={`font-bold py-3 px-8 rounded-lg  ${!userData || isSpinning || userData?.hasSpun
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white  cursor-pointer text-white hover:from-blue-600 hover:to-purple-700 transition duration-200 transform hover:scale-105 '
+                  }`}
               >
                 {isSpinning ? 'MEMUTAR...' : 'PUTAR LUCKY WHEEL'}
               </button>
             </div>
+            {userData && userData.hasSpun === false && (
+              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="font-semibold text-green-800 mb-2">User Terverifikasi!</h3>
+                <div className="text-sm text-green-700">
+                  <p><strong>Nama:</strong> {userData.name}</p>
+                  <p><strong>Email:</strong> {userData.email}</p>
+                  <p><strong>Kode:</strong> {userData.code}</p>
+                  <p><strong>Status:</strong> {userData.hasSpun ? 'Sudah Spin' : <span className="text-gray-800 bg-yellow-300 px-2 py-1 rounded-full">Belum Spin</span>}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Verification Form Section */}
-          <div className="bg-white rounded-2xl shadow-2xl p-8">
-          
-            
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Verifikasi Kode</h2>
-              <p className="text-gray-600">Masukkan kode user untuk memutar Lucky Wheel</p>
-            </div>
-
-            <form onSubmit={handleCodeSubmit} className="space-y-6">
+          <div className={`w-full bg-white rounded-2xl shadow-2xl p-4 ${userData && userData.hasSpun === false ? 'hidden ' : 'col-span-12 md:col-span-4'}`}>
+            <form onSubmit={handleCodeSubmit} className="space-y-6 w-full">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kode User
-                </label>
                 <input
                   type="text"
                   value={userCode}
                   onChange={(e) => setUserCode(e.target.value.toUpperCase())}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-center text-xl font-bold tracking-wider"
-                  placeholder="123A"
+                  className="w-full px-4 py-3 border placeholder:text-sm placeholder:text-gray-500  border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-purple-600 text-center text-xl font-bold tracking-wider"
+                  placeholder="masukkan kode"
                   maxLength={4}
                 />
               </div>
-
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transition duration-200"
@@ -260,19 +257,7 @@ export default function WheelPage() {
                 Verifikasi Kode
               </button>
             </form>
-
-            {userData && (
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <h3 className="font-semibold text-green-800 mb-2">User Terverifikasi!</h3>
-                <div className="text-sm text-green-700">
-                  <p><strong>Nama:</strong> {userData.name}</p>
-                  <p><strong>Email:</strong> {userData.email}</p>
-                  <p><strong>Telepon:</strong> {userData.phone}</p>
-                  <p><strong>Kode:</strong> {userData.code}</p>
-                  <p><strong>Status:</strong> {userData.hasSpun ? 'Sudah Spin' : 'Belum Spin'}</p>
-                </div>
-              </div>
-            )}
+            
           </div>
         </div>
       </div>

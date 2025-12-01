@@ -5,13 +5,11 @@ import { NextRequest } from 'next/server';
 export async function GET() {
 
   try {
+    await connectDB();
 
-      await connectDB();
-      const prizes = await Prize.find();
-      console.log('Fetched prizes from DB:', prizes);
+    const prizes = await Prize.find();
 
-
-    return Response.json({prizes})
+    return Response.json({ prizes })
   } catch (error) {
     console.error('Get prizes error:', error)
     return Response.json(
@@ -29,9 +27,6 @@ export async function POST(request = NextRequest) {
 
     const { name, description, color, probability } = await request.json();
 
-    console.log('Prize request:', { name, description, color, probability });
-
-
     // Create new user
     const newPrize = await Prize.create({
       name,
@@ -40,10 +35,6 @@ export async function POST(request = NextRequest) {
       probability,
       isActive: true
     });
-
-
-
-    console.log('New prize created:', newPrize);
 
     return Response.json({
       success: true,

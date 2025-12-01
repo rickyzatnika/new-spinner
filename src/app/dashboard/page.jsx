@@ -261,11 +261,6 @@ export default function DashboardPage() {
                 <span className="text-lg font-bold text-purple-600">{todayStats.assigned}</span>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                <span className="text-sm font-medium text-gray-700">Random Spin</span>
-                <span className="text-lg font-bold text-green-600">{todayStats.random}</span>
-              </div>
-
               <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                 <span className="text-sm font-medium text-gray-700">Total</span>
                 <span className="text-lg font-bold text-blue-600">{todayStats.total}</span>

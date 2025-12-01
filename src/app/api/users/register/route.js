@@ -109,14 +109,14 @@ export async function POST(request) {
       userData.ipAddress = clientIP;
     }
 
-    console.log('Creating user with data:', { ...userData, phone: '***' });
+    // console.log('Creating user with data:', { ...userData, phone: '***' });
 
     // Create new user with IP address
     const newUser = await User.create(userData);
 
-    console.log('✅ New user created successfully');
-    console.log('User ID:', newUser._id);
-    console.log('IP Address saved:', newUser.ipAddress || 'null');
+    // console.log('✅ New user created successfully');
+    // console.log('User ID:', newUser._id);
+    // console.log('IP Address saved:', newUser.ipAddress || 'null');
 
     return Response.json({
       message: 'Registrasi berhasil',
