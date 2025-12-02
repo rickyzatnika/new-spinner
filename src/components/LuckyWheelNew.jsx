@@ -88,7 +88,9 @@ const LuckyWheelNew = ({ onSpinComplete, assignedPrize = null, isSpinning = fals
       ctx.closePath()
       ctx.fillStyle = prize.color
       ctx.fill()
-      ctx.strokeStyle = 'white'
+      ctx.strokeStyle = '#fefefe'
+      ctx.shadowBlur = 9
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.48)'
       ctx.lineWidth = 3
       ctx.stroke()
 
@@ -98,9 +100,9 @@ const LuckyWheelNew = ({ onSpinComplete, assignedPrize = null, isSpinning = fals
       ctx.rotate(startAngle + anglePerPrize / 2)
       ctx.textAlign = 'center'
       ctx.fillStyle = '#000'
-      ctx.font = '18px Poppins'
-      ctx.shadowColor = 'rgba(0,0,0,0.2)'
-      ctx.shadowBlur = 3
+      ctx.font = '17px Poppins'
+      ctx.shadowColor = 'rgba(12, 12, 12, 0.88)'
+      ctx.shadowBlur = 1
       ctx.fillText(prize.name, radius / 2 + 28, 6) // Move text further out
       ctx.restore()
     })
@@ -108,22 +110,24 @@ const LuckyWheelNew = ({ onSpinComplete, assignedPrize = null, isSpinning = fals
     // Draw center circle
     ctx.beginPath()
     ctx.arc(centerX, centerY, 9, 0, 2 * Math.PI)
-    ctx.fillStyle = '#fff'
+    ctx.fillStyle = 'rgba(189, 0, 0, 0.87)'
     ctx.fill()
-    ctx.strokeStyle = '#000'
-    ctx.lineWidth = 5
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
+    ctx.lineWidth = 2
     ctx.stroke()
 
     // Draw pointer triangle - pointing deeper into the pie
     ctx.beginPath()
     ctx.moveTo(centerX + radius - 15, centerY) // Tip point pointing into the pie
-    ctx.lineTo(centerX + radius + 55, centerY - 32) // Bottom right
-    ctx.lineTo(centerX + radius + 55, centerY + 32) // Top right
+    ctx.lineTo(centerX + radius + 75, centerY - 32) // Bottom right
+    ctx.lineTo(centerX + radius + 75, centerY + 32) // Top right
     ctx.closePath()
-    ctx.fillStyle = '#FF0000'
+    ctx.fillStyle = 'rgba(189, 0, 0, 0.87)'
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.49)'
+    ctx.shadowBlur = 1
+    ctx.strokeStyle = 'rgb(68, 2, 2)'
     ctx.fill()
-    ctx.strokeStyle = '#8B0000'
-    ctx.lineWidth = 2
+    ctx.lineWidth = 3
     ctx.stroke()
   }
 
@@ -324,19 +328,19 @@ const LuckyWheelNew = ({ onSpinComplete, assignedPrize = null, isSpinning = fals
   if (prizes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
-        <div className="text-gray-600">Loading prizes...</div>
+        <div className="text-gray-200">Loading prizes...</div>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col items-center justify-center p-2">
-      <div className="relative">
+      <div className="relative antialized  w-[300px] h-[300px] sm:w-[330px] sm:h-[330px] md:w-[380px] md:h-[380px] lg:w-[420px] lg:h-[420px]">
         <canvas
           ref={canvasRef}
           width={450}
           height={450}
-          className=" rounded-full bg-gradient-to-r from-purple-400 via-teal-400 to-pink-600 shadow-2xl shadow-black/40"
+          className=" rounded-full w-full bg-gradient-to-r from-purple-400 via-teal-400 to-pink-600 shadow-xl shadow-black/40"
         />
       </div>
     </div>

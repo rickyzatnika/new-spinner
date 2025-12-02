@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 
 import Image from 'next/image'
 import LuckyWheelNew from '@/components/LuckyWheelNew'
+import { toast } from 'react-toastify'
 
 const fetcher = (url) => fetch(url).then((res) => res.json())
 
@@ -16,23 +17,23 @@ export default function WheelPage() {
   const [spinResult, setSpinResult] = useState(null)
   const finishAudioRef = useRef(null)
 
+  const [error, setError] = useState(false);
+
 
   // SWR hooks for real-time data
-  const { data: spinResults, error: resultsError, mutate: mutateResults } = useSWR(
+  const { data: spinResults, error: resultsError} = useSWR(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`,
     fetcher,
     {
-      refreshInterval: 3000, // Refresh every 3 seconds
       revalidateOnFocus: true,
       revalidateOnReconnect: true
     }
   )
 
-  const { data: users, error: usersError, mutate: mutateUsers } = useSWR(
+  const { data: users, error: usersError} = useSWR(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`,
     fetcher,
     {
-      refreshInterval: 5000, // Refresh every 5 seconds
       revalidateOnFocus: true,
       revalidateOnReconnect: true
     }
@@ -67,10 +68,19 @@ export default function WheelPage() {
   const handleCodeSubmit = async (e) => {
     e.preventDefault()
 
+    
     try {
+
+      if(!e.target.value){
+        toast.error("mohon masukkan kode")
+        return ;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/${userCode}`)
       const data = await response.json()
 
+     
+  
       if (response.ok) {
         setUserData(data)
 
@@ -79,14 +89,17 @@ export default function WheelPage() {
         const prizeData = await prizeResponse.json()
 
         if (prizeResponse.ok && prizeData.prize) {
-          setAssignedPrize(prizeData.prize)
+          setAssignedPrize(prizeData.prize)       
+        }
+
+        if(data.hasSpun === false){
+          setIsSpinning(true)
         }
 
         // Refresh data to get latest status
-        mutateResults()
-        mutateUsers()
+        mutate(spinResults, users) // Refresh spin results
       } else {
-        alert(data.message || 'Kode tidak ditemukan')
+        toast.error(data.message || 'Kode tidak ditemukan')
       }
     } catch (error) {
       alert('Terjadi kesalahan. Silakan coba lagi.')
@@ -132,8 +145,8 @@ export default function WheelPage() {
       } else {
         console.log('Save successful!')
         // Success! Refresh data to show real-time updates
-        mutateResults() // Refresh spin results
-        mutateUsers()    // Refresh users data to update hasSpun status
+        mutate(spinResults, users) // Refresh spin results
+   
       }
     } catch (error) {
       console.error('Error saving spin result:', error)
@@ -141,14 +154,7 @@ export default function WheelPage() {
     }
   }
 
-  const startSpin = () => {
-    if (userData.hasSpun) {
-      alert('Anda sudah pernah memutar Lucky Wheel!')
-      return
-    }
-
-    setIsSpinning(true)
-  }
+  
 
   const resetForm = () => {
     setUserCode('')
@@ -188,22 +194,22 @@ export default function WheelPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-center items-center w-full mb-3">
+        <div className="flex flex-col justify-center items-center w-full mb-3">
           <Image src="/goodluck.png" alt="Logo" width={400} height={400} />
-        </div>
-
-        <div className='grid grid-cols-1 sm:grid-cols-12 gap-2 items-start'>
-          {/* Lucky Wheel Section */}
-          <div className={`bg-white rounded-2xl shadow-2xl p-4 antialiased ${userData && userData.hasSpun === false ? 'col-span-12' : 'col-span-12 md:col-span-8'}`}>
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-500 ">
+          <div className="text-center mb-6 w-full sm:w-3/5">
+              <h2 className={`text-xl font-semibold text-gray-800 mx-auto px-4 w-full   rounded-2xl ${userData ? ' bg-white py-2 shadow-lg shadow-black/20' : 'hidden'}`}>
                 {userData ? `${userData.name}` : ''}
-              </h2>
-
-              {userData && userData.hasSpun && (
+                {userData && userData.hasSpun && (
                 <p className="text-red-500 font-semibold mt-2">Kode tidak valid atau sudah digunakan</p>
               )}
+              </h2>
             </div>
+        </div>
+
+        <div className='grid grid-cols-1 sm:grid-cols-12 items-center'>
+          {/* Lucky Wheel Section */}
+          <div className={`p-4 antialiased ${userData && userData.hasSpun === false ? 'col-span-12' : 'col-span-12 md:col-span-8'}`}>
+            
 
             <LuckyWheelNew
               onSpinComplete={handleSpinComplete}
@@ -211,18 +217,7 @@ export default function WheelPage() {
               isSpinning={isSpinning}
             />
 
-            <div className="flex justify-center space-x-4 mt-8">
-              <button
-                onClick={startSpin}
-                disabled={!userData || isSpinning || userData?.hasSpun}
-                className={`font-bold py-3 px-8 rounded-lg  ${!userData || isSpinning || userData?.hasSpun
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white  cursor-pointer text-white hover:from-blue-600 hover:to-purple-700 transition duration-200 transform hover:scale-105 '
-                  }`}
-              >
-                {isSpinning ? 'MEMUTAR...' : 'PUTAR LUCKY WHEEL'}
-              </button>
-            </div>
+        
             {userData && userData.hasSpun === false && (
               <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <h3 className="font-semibold text-green-800 mb-2">User Terverifikasi!</h3>
@@ -237,24 +232,30 @@ export default function WheelPage() {
           </div>
 
           {/* Verification Form Section */}
-          <div className={`w-full bg-white rounded-2xl shadow-2xl p-4 ${userData && userData.hasSpun === false ? 'hidden ' : 'col-span-12 md:col-span-4'}`}>
+          <div className={`mx-auto bg-white rounded-2xl shadow-2xl p-4 transition-all  ${userData && userData.hasSpun === false ? '' : 'col-span-12 md:col-span-4'}`}>
+            <p className='text-center pb-4 text-gray-600 font-semibold text-sm'>Masukkan Kode</p>
             <form onSubmit={handleCodeSubmit} className="space-y-6 w-full">
               <div>
                 <input
                   type="text"
                   value={userCode}
                   onChange={(e) => setUserCode(e.target.value.toUpperCase())}
-                  required
+               
                   className="w-full px-4 py-3 border placeholder:text-sm placeholder:text-gray-500  border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition text-purple-600 text-center text-xl font-bold tracking-wider"
-                  placeholder="masukkan kode"
+                  placeholder="123A"
                   maxLength={4}
                 />
+               
               </div>
               <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transition duration-200"
+                type=''
+                disabled={isSpinning}
+                className={`font-bold py-3 px-8 rounded-lg w-full  ${ userData?.hasSpun && userData?.hasSpun === false
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-b from-yellow-500 to-orange-600 text-white  cursor-pointer text-white hover:from-yellow-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 '
+                  }`}
               >
-                Verifikasi Kode
+                {isSpinning ? 'MEMUTAR...' : 'PUTAR'}
               </button>
             </form>
             

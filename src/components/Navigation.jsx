@@ -20,7 +20,7 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className=" flex items-center">
-              <div className="text-2xl font-bold text-purple-600">🎰 Lucky Wheel</div>
+              <div className="text-2xl font-bold ">🎡 <span className='text-purple-600'>Lucky</span> Wheel</div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link

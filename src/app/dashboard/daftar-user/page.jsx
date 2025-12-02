@@ -20,51 +20,23 @@ export default function DaftarUserPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [selectedPrize, setSelectedPrize] = useState('');
   const [assigning, setAssigning] = useState(false);
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const USERS_PER_PAGE = 10;
 
   // SWR hooks for real-time data
-  const { data: usersData, error: usersError, mutate: mutateUsers } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`,
-    fetcher,
-    { 
-      refreshInterval: 2000, // Refresh setiap 2 detik
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true
-    }
-  );
+  const { data: usersData, mutate: mutateUsers } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users?limit=1000`, fetcher);
 
-  const { data: prizesData, error: prizesError, mutate: mutatePrizes } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`,
-    fetcher,
-    { 
-      refreshInterval: 3000,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true
-    }
-  );
+  const { data: prizesData, mutate: mutatePrizes } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/prizes`, fetcher);
 
-  const { data: spinResultsData, error: spinResultsError, mutate: mutateSpinResults } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`,
-    fetcher,
-    { 
-      refreshInterval: 2000,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true
-    }
-  );
+  const { data: spinResultsData, mutate: mutateSpinResults } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/spin-result`, fetcher);
 
-  const { data: assignedPrizesData, error: assignedPrizesError, mutate: mutateAssignedPrizes } = useSWR(
-    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prizes`,
-    fetcher,
-    { 
-      refreshInterval: 2000,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true
-    }
-  );
+  const { data: assignedPrizesData, mutate: mutateAssignedPrizes } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/assigned-prizes`, fetcher);
 
   // Update local state when SWR data changes
   useEffect(() => {
@@ -82,18 +54,18 @@ export default function DaftarUserPage() {
   }, [prizesData]);
 
   useEffect(() => {
-   
+
     if (spinResultsData) {
       setSpinResults(spinResultsData);
     }
-  
+
   }, [spinResultsData]);
 
   useEffect(() => {
     if (assignedPrizesData) {
       setAssignedPrizes(assignedPrizesData);
     }
-  
+
   }, [assignedPrizesData]);
 
   // Handle search
@@ -153,7 +125,7 @@ export default function DaftarUserPage() {
       if (response.ok) {
         toast.success(`${selectedUsers.length} user berhasil dihapus`);
         setSelectedUsers([]);
-        
+
         // Trigger real-time update
         mutateUsers();
         mutateSpinResults();
@@ -170,7 +142,7 @@ export default function DaftarUserPage() {
   const handleEditUser = (user) => {
     setEditingUser(user);
     setShowEditModal(true);
-    
+
     // Check if user has assigned prize
     const assignedPrize = assignedPrizes[user._id];
     if (assignedPrize) {
@@ -205,7 +177,7 @@ export default function DaftarUserPage() {
         setEditingUser(null);
         setSelectedPrize('');
         setShowEditModal(false);
-        
+
         // Trigger real-time update
         mutateUsers();
         mutateSpinResults();
@@ -234,7 +206,7 @@ export default function DaftarUserPage() {
       name: prizeName || 'Hadiah Tidak Ditemukan',
       color: '#999' // fallback supaya tidak error
     });
-  
+
     // admin assigned prize
     const assignedPrize = assignedPrizes[userId];
     if (assignedPrize) {
@@ -244,7 +216,7 @@ export default function DaftarUserPage() {
         prize: prize || safePrize(assignedPrize.prizeId, assignedPrize.prizeName)
       };
     }
-  
+
     // spin result assigned
     const spinAssigned = spinResults.find(r => r.userId === userId && r.isAssigned);
     if (spinAssigned) {
@@ -257,7 +229,7 @@ export default function DaftarUserPage() {
         isAssigned: true
       };
     }
-  
+
     // random spin result (NOT assigned)
     const randomSpin = spinResults.find(r => r.userId === userId && !r.isAssigned);
     if (randomSpin) {
@@ -270,7 +242,7 @@ export default function DaftarUserPage() {
         isAssigned: false
       };
     }
-  
+
     return null;
   };
 
@@ -282,12 +254,12 @@ export default function DaftarUserPage() {
   // Filter users based on search term
   const filteredUsers = users.filter(user => {
     if (!searchTerm.trim()) return true;
-    
+
     const searchLower = searchTerm.toLowerCase().trim();
     const nameMatch = user.name?.toLowerCase().includes(searchLower);
     const codeMatch = user.code?.toLowerCase().includes(searchLower);
     const emailMatch = user.email?.toLowerCase().includes(searchLower);
-    
+
     return nameMatch || codeMatch || emailMatch;
   });
 
@@ -340,16 +312,16 @@ export default function DaftarUserPage() {
     try {
       // Prepare CSV headers
       const headers = ['No', 'Nama', 'Email', 'Telepon', 'Kode', 'Status Spin', 'Hadiah', 'Tanggal Registrasi'];
-      
+
       // Prepare CSV rows
       const rows = filteredUsers.map((user, index) => {
         const hasSpun = getUserSpinStatus(user._id);
         const assignedPrize = getUserAssignedPrize(user._id);
         const prizeName = assignedPrize?.prize?.name || assignedPrize?.prizeName || '-';
-        const registeredDate = user.registeredAt 
+        const registeredDate = user.registeredAt
           ? new Date(user.registeredAt).toLocaleDateString('id-ID')
           : '-';
-        
+
         return [
           index + 1,
           user.name || '',
@@ -373,14 +345,14 @@ export default function DaftarUserPage() {
       const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      
+
       link.setAttribute('href', url);
       link.setAttribute('download', `daftar-user-${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success(`Berhasil export ${filteredUsers.length} user ke CSV`);
     } catch (error) {
       console.error('Export CSV error:', error);
@@ -394,26 +366,26 @@ export default function DaftarUserPage() {
       // Dynamic import jsPDF
       const { default: jsPDF } = await import('jspdf');
       const doc = new jsPDF('landscape', 'mm', 'a4');
-      
+
       // Set font
       doc.setFont('helvetica');
-      
+
       // Title
       doc.setFontSize(18);
       doc.text('Daftar User', 14, 15);
-      
+
       // Date
       doc.setFontSize(10);
       doc.text(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 14, 22);
       doc.text(`Total: ${filteredUsers.length} user`, 14, 27);
-      
+
       // Table headers
       const headers = ['No', 'Nama', 'Email', 'Telepon', 'Kode', 'Status', 'Hadiah'];
       const colWidths = [15, 50, 60, 40, 25, 30, 50];
       let startY = 35;
       const rowHeight = 8;
       const initialX = 14;
-      
+
       // Helper function to draw header
       const drawHeader = (y) => {
         let x = initialX;
@@ -421,7 +393,7 @@ export default function DaftarUserPage() {
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(10);
         doc.setFont('helvetica', 'bold');
-        
+
         headers.forEach((header, i) => {
           doc.rect(x, y, colWidths[i], rowHeight, 'F');
           // Center text in cell
@@ -430,33 +402,33 @@ export default function DaftarUserPage() {
           x += colWidths[i];
         });
       };
-      
+
       // Draw initial header
       drawHeader(startY);
-      
+
       // Draw rows
       startY += rowHeight;
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      
+
       filteredUsers.forEach((user, index) => {
         // Check if we need a new page
         if (startY > 180) {
           doc.addPage();
           startY = 15;
-          
+
           // Redraw header on new page
           drawHeader(startY);
           startY += rowHeight;
           doc.setTextColor(0, 0, 0);
           doc.setFont('helvetica', 'normal');
         }
-        
+
         const hasSpun = getUserSpinStatus(user._id);
         const assignedPrize = getUserAssignedPrize(user._id);
         const prizeName = assignedPrize?.prize?.name || assignedPrize?.prizeName || '-';
-        
+
         const rowData = [
           (index + 1).toString(),
           user.name || '',
@@ -466,7 +438,7 @@ export default function DaftarUserPage() {
           hasSpun ? 'Sudah' : 'Belum',
           prizeName.length > 20 ? prizeName.substring(0, 20) + '...' : prizeName
         ];
-        
+
         let x = initialX;
         rowData.forEach((cell, i) => {
           // Alternate row color
@@ -474,20 +446,20 @@ export default function DaftarUserPage() {
             doc.setFillColor(245, 245, 245);
             doc.rect(x, startY, colWidths[i], rowHeight, 'F');
           }
-          
+
           // Truncate long text
           let displayText = cell;
           if (cell.length > 25 && i > 0) {
             displayText = cell.substring(0, 25) + '...';
           }
-          
+
           doc.text(displayText, x + 2, startY + 5);
           x += colWidths[i];
         });
-        
+
         startY += rowHeight;
       });
-      
+
       // Save PDF
       doc.save(`daftar-user-${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success(`Berhasil export ${filteredUsers.length} user ke PDF`);
@@ -500,7 +472,7 @@ export default function DaftarUserPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navigation />
-      
+
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Daftar User</h1>
@@ -510,6 +482,7 @@ export default function DaftarUserPage() {
         {/* Search Bar */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            
             <div className="flex-1 max-w-md">
               <input
                 type="text"
@@ -519,6 +492,7 @@ export default function DaftarUserPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
               />
             </div>
+            
             <div className="flex items-center space-x-4">
               {selectedUsers.length > 0 && (
                 <button
@@ -537,38 +511,35 @@ export default function DaftarUserPage() {
                   <span>Total: {users.length} user</span>
                 )}
               </div>
+              <div className="flex items-center">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={exportToCSV}
+                  disabled={filteredUsers.length === 0}
+                  className="cursor-pointer flex items-center space-x-2 bg-green-400 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg  transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Export CSV</span>
+                </button>
+                <button
+                  onClick={exportToPDF}
+                  disabled={filteredUsers.length === 0}
+                  className="cursor-pointer flex items-center space-x-2 bg-red-400 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span>Export PDF</span>
+                </button>
+              </div>
+            </div>
             </div>
           </div>
         </div>
 
-        {/* Export Buttons */}
-        <div className="bg-white rounded-lg shadow-lg p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-800">Export Data</h3>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={exportToCSV}
-                disabled={filteredUsers.length === 0}
-                className="flex items-center space-x-2 bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span>Export CSV</span>
-              </button>
-              <button
-                onClick={exportToPDF}
-                disabled={filteredUsers.length === 0}
-                className="flex items-center space-x-2 bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <span>Export PDF</span>
-              </button>
-            </div>
-          </div>
-        </div>
+
 
         {/* Users Table */}
         <div className="bg-white rounded-lg shadow-lg p-6">
@@ -619,7 +590,7 @@ export default function DaftarUserPage() {
                       const hasSpun = getUserSpinStatus(user._id);
                       const assignedPrize = getUserAssignedPrize(user._id);
                       const globalIndex = getGlobalIndex(index);
-                      
+
                       return (
                         <tr key={user._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -647,7 +618,7 @@ export default function DaftarUserPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             {assignedPrize ? (
-                              <span 
+                              <span
                                 className="px-2 py-1 rounded-full text-xs text-white"
                                 style={{ backgroundColor: assignedPrize.prize.color || '#999' }}
                               >
@@ -673,7 +644,7 @@ export default function DaftarUserPage() {
                   </tbody>
                 </table>
               </div>
-              
+
               {users.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   {searchTerm ? 'Tidak ada user yang cocok dengan pencarian' : 'Belum ada user terdaftar'}
@@ -682,7 +653,7 @@ export default function DaftarUserPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-6 py-3 bg-gray-50 border-t border-gray-200">
+                <div className="flex items-center justify-between px-6 py-3 bg-gray-50 border-t border-gray-200">
                   <div className="text-sm text-gray-700">
                     {totalFilteredUsers > 0 ? (
                       <span>
@@ -698,7 +669,7 @@ export default function DaftarUserPage() {
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 border transition-all duration-200 ease-linear cursor-pointer bg-purple-500 hover:bg-purple-700 text-white hover:text-white border-gray-300 rounded-md text-sm disabled:opacity-25 disabled:cursor-not-allowed"
                     >
                       Prev
                     </button>
@@ -711,11 +682,10 @@ export default function DaftarUserPage() {
                         ) : (
                           <button
                             onClick={() => handlePageChange(page)}
-                            className={`px-3 py-1 border border-gray-300 rounded-md text-sm ${
-                              currentPage === page
+                            className={`px-3 py-1 transition-all duration-200 ease-linear cursor-pointer  border border-gray-300 rounded-md text-sm ${currentPage === page
                                 ? 'bg-purple-600 text-white'
-                                : 'hover:bg-gray-100'
-                            }`}
+                                : 'hover:bg-gray-400'
+                              }`}
                           >
                             {page}
                           </button>
@@ -727,7 +697,7 @@ export default function DaftarUserPage() {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="cursor-pointer bg-purple-500 hover:bg-purple-700 text-white hover:text-white border-gray-300 rounded-md text-sm disabled:opacity-25 px-3 transition-all duration-200 ease-linear   py-1 border border-gray-300 rounded-md text-sm  disabled:cursor-not-allowed"
                     >
                       Next
                     </button>
@@ -744,30 +714,30 @@ export default function DaftarUserPage() {
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit User</h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Nama</label>
                 <input
                   type="text"
                   value={editingUser.name}
-                  onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   readOnly
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                 <input
                   type="email"
                   value={editingUser.email}
-                  onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   readOnly
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Hadiah</label>
                 <select
@@ -781,16 +751,16 @@ export default function DaftarUserPage() {
                       .filter(prize => prize.isActive !== false)
                       .map((prize) => (
                         <option
-                        key={prize._id}
-                        value={prize._id}
-                        style={{
-                          backgroundColor: prize.color,   // warna dari database
-                          color: "white",
-                                       // biar teks tetap terlihat
-                        }}
-                      >
-                        {prize.name}
-                      </option>
+                          key={prize._id}
+                          value={prize._id}
+                          style={{
+                            backgroundColor: prize.color,   // warna dari database
+                            color: "white",
+                            // biar teks tetap terlihat
+                          }}
+                        >
+                          {prize.name}
+                        </option>
                       ))
                   ) : (
                     <option value="" disabled>Loading prizes...</option>
